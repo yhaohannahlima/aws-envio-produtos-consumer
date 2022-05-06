@@ -11,8 +11,15 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 
 public class KafkaService {
     public static void readMessage(String groupId) throws InterruptedException, ExecutionException, FileNotFoundException {
@@ -21,15 +28,16 @@ public class KafkaService {
 
         String bucketName = "grupo6-bucket";
         String keyName = "produtos - Página1.csv";
+        Region region = Region.US_EAST_1;
 
         S3Client client = S3Client.builder().build();
 
         GetObjectRequest request = new GetObjectRequest.builder()
                                             .bucketName(bucketName)
-                                            .key(bucketKey)
+                                            .key(keyName)
                                             .build();
-
-        ResponseInputStream <GetObjectResponse> inputStream = client.getObject(request);
+        client.getObject(request);
+        ResponseInputStream<GetObjectResponse> inputStream = client.getObject(request);
 
         String fileName = new File(keyName).getName();
         BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(keyName));
@@ -41,7 +49,7 @@ public class KafkaService {
             var records = consumer.poll(Duration.ofMillis(500));
             for (ConsumerRecord<String, String> registro : records) {
                 outputStream.write(buffer, 0, bytesRead);
-
+                System.out.println(fileName);
                 inputStream.close();
                 outputStream.close();
             }

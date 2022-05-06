@@ -83,7 +83,7 @@ source ~/.bash_profile
 
 # rodar o comando
 ```shell
-./buld.sh
+./bulid.sh
 ./start.sh
 ```
 
